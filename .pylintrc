@@ -1,0 +1,29 @@
+[MASTER]
+# Use multiple processes to speed up pylint
+jobs=1
+# Allow loading FastAPI and SQLAlchemy extensions
+load-plugins=
+
+[MESSAGES CONTROL]
+# Disable warnings that conflict with FastAPI patterns
+disable=
+    missing-module-docstring,
+    too-few-public-methods,
+    no-self-argument,
+    import-error
+
+[FORMAT]
+# Maximum line length (PEP 8 standard)
+max-line-length=100
+# Maximum number of arguments for a function
+max-args=8
+
+[DESIGN]
+# Maximum number of local variables
+max-locals=20
+# Maximum number of return statements
+max-returns=8
+
+[SIMILARITIES]
+# Minimum lines of similarity to report
+min-similarity-lines=6
