@@ -8,10 +8,10 @@ output "ec2_public_ip" {
   value       = aws_instance.backend.public_ip
 }
 
-# Backend API URL - base URL for the FastAPI application
+# Backend API URL - base URL for the Spring Boot application
 output "backend_url" {
-  description = "URL for the FastAPI backend API"
-  value       = "http://${aws_instance.backend.public_ip}:8000"
+  description = "URL for the Spring Boot backend API"
+  value       = "http://${aws_instance.backend.public_ip}:10004"
 }
 
 # Frontend website URL - S3 static website endpoint
@@ -26,7 +26,7 @@ output "s3_bucket_name" {
   value       = aws_s3_bucket.frontend.id
 }
 
-# RDS database endpoint - used in backend DATABASE_URL configuration
+# RDS database endpoint - used in backend SPRING_DATASOURCE_URL configuration
 output "rds_endpoint" {
   description = "RDS PostgreSQL connection endpoint"
   value       = aws_db_instance.postgres.address

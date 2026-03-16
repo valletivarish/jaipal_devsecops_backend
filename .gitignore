@@ -1,44 +1,48 @@
-# Python bytecode and cache
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Virtual environments
-venv/
-env/
-.env
-.venv
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
 
-# Distribution and packaging
-dist/
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 build/
-*.egg-info/
-*.egg
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# Testing and coverage
-.pytest_cache/
-htmlcov/
-.coverage
-coverage.xml
-*.cover
+### VS Code ###
+.vscode/
 
-# Static analysis reports
-pylint-report.txt
-flake8-report.txt
-bandit-report.json
-safety-report.json
+### Maven ###
+*.log
+*.jar
+*.war
+*.ear
 
-# Database
-*.db
-*.sqlite3
+### Environment ###
+.env
+*.env
+application-local.yml
 
-# OS files
+### OS ###
 .DS_Store
 Thumbs.db

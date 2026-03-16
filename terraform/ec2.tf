@@ -1,10 +1,10 @@
 # EC2 Instance Configuration
-# Provisions a t2.micro EC2 instance to host the FastAPI backend application.
-# Includes a security group allowing SSH (22) and API (8000) access.
-# User data script installs Python 3.11 and sets up the application as a systemd service.
+# Provisions a t2.micro EC2 instance to host the Spring Boot backend application.
+# Includes a security group allowing SSH (22) and API (10004) access.
+# User data script installs Java 17 and sets up the application as a systemd service.
 
 # Security group for the EC2 instance
-# Allows inbound SSH for management and port 8000 for the FastAPI API
+# Allows inbound SSH for management and port 10004 for the Spring Boot API
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.project_name}-ec2-sg"
   description = "Security group for backend EC2 instance"
@@ -19,13 +19,13 @@ resource "aws_security_group" "ec2_sg" {
     description = "SSH access"
   }
 
-  # Allow API access (port 8000) for the FastAPI backend
+  # Allow API access (port 10004) for the Spring Boot backend
   ingress {
-    from_port   = 8000
-    to_port     = 8000
+    from_port   = 10004
+    to_port     = 10004
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "FastAPI backend API"
+    description = "Spring Boot backend API"
   }
 
   # Allow all outbound traffic for package installations and updates
@@ -59,7 +59,7 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# EC2 instance for hosting the FastAPI backend
+# EC2 instance for hosting the Spring Boot backend
 resource "aws_instance" "backend" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
@@ -68,33 +68,35 @@ resource "aws_instance" "backend" {
   key_name               = var.key_name
 
   # User data script runs on first boot to set up the server
-  # Installs Python 3.11, pip, and creates a systemd service for the API
+  # Installs Java 17, Maven, and creates a systemd service for the API
   user_data = <<-EOF
     #!/bin/bash
     # Update system packages
     dnf update -y
 
-    # Install Python 3.11 and development tools
-    dnf install -y python3.11 python3.11-pip git
+    # Install Java 17 and development tools
+    dnf install -y java-17-amazon-corretto-devel maven git
 
     # Create application directory
     mkdir -p /home/ec2-user/app/backend
     chown -R ec2-user:ec2-user /home/ec2-user/app
 
-    # Create systemd service for the FastAPI application
+    # Create systemd service for the Spring Boot application
     cat > /etc/systemd/system/airquality-api.service <<SVCEOF
     [Unit]
-    Description=Air Quality Monitoring API
+    Description=Air Quality Monitoring API (Spring Boot)
     After=network.target
 
     [Service]
     Type=simple
     User=ec2-user
     WorkingDirectory=/home/ec2-user/app/backend
-    ExecStart=/usr/bin/python3.11 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ExecStart=/usr/bin/java -jar target/air-quality-monitoring-1.0.0.jar --server.port=10004
     Restart=always
     RestartSec=5
-    Environment=DATABASE_URL=postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.address}:5432/${var.db_name}
+    Environment=SPRING_DATASOURCE_URL=jdbc:postgresql://${aws_db_instance.postgres.address}:5432/${var.db_name}
+    Environment=SPRING_DATASOURCE_USERNAME=${var.db_username}
+    Environment=SPRING_DATASOURCE_PASSWORD=${var.db_password}
 
     [Install]
     WantedBy=multi-user.target
