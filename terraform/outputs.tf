@@ -2,16 +2,16 @@
 # Displays important URLs and connection information after infrastructure deployment.
 # These values are needed for CI/CD configuration and application access.
 
-# Backend EC2 instance public IP - used for API access and SSH
-output "ec2_public_ip" {
-  description = "Public IP address of the backend EC2 instance"
-  value       = aws_instance.backend.public_ip
+# Backend Elastic IP - static IP that persists across instance restarts
+output "ec2_elastic_ip" {
+  description = "Elastic IP address of the backend EC2 instance"
+  value       = aws_eip.backend.public_ip
 }
 
 # Backend API URL - base URL for the Spring Boot application
 output "backend_url" {
   description = "URL for the Spring Boot backend API"
-  value       = "http://${aws_instance.backend.public_ip}:10004"
+  value       = "http://${aws_eip.backend.public_ip}:10004"
 }
 
 # Frontend website URL - S3 static website endpoint
@@ -36,4 +36,10 @@ output "rds_endpoint" {
 output "rds_port" {
   description = "RDS PostgreSQL port"
   value       = aws_db_instance.postgres.port
+}
+
+# EC2 instance ID
+output "ec2_instance_id" {
+  description = "EC2 instance ID"
+  value       = aws_instance.backend.id
 }

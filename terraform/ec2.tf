@@ -28,6 +28,15 @@ resource "aws_security_group" "ec2_sg" {
     description = "Spring Boot backend API"
   }
 
+  # Allow HTTP access (port 80) for the React frontend served via nginx
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP access for frontend"
+  }
+
   # Allow all outbound traffic for package installations and updates
   egress {
     from_port   = 0
@@ -97,6 +106,8 @@ resource "aws_instance" "backend" {
     Environment=SPRING_DATASOURCE_URL=jdbc:postgresql://${aws_db_instance.postgres.address}:5432/${var.db_name}
     Environment=SPRING_DATASOURCE_USERNAME=${var.db_username}
     Environment=SPRING_DATASOURCE_PASSWORD=${var.db_password}
+    Environment=JWT_SECRET=${var.jwt_secret}
+    Environment=CORS_ALLOWED_ORIGINS=http://${aws_s3_bucket_website_configuration.frontend.website_endpoint}
 
     [Install]
     WantedBy=multi-user.target
@@ -108,6 +119,18 @@ resource "aws_instance" "backend" {
 
   tags = {
     Name    = "${var.project_name}-backend"
+    Project = var.project_name
+  }
+}
+
+# Elastic IP for the EC2 instance - provides a static public IP
+# that persists across instance stop/start cycles
+resource "aws_eip" "backend" {
+  instance = aws_instance.backend.id
+  domain   = "vpc"
+
+  tags = {
+    Name    = "${var.project_name}-eip"
     Project = var.project_name
   }
 }

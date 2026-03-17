@@ -50,3 +50,9 @@ variable "key_name" {
   description = "Name of the EC2 key pair for SSH access"
   type        = string
 }
+
+variable "jwt_secret" {
+  description = "JWT signing secret for authentication (set via environment variable)"
+  type        = string
+  sensitive   = true
+}

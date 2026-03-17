@@ -128,6 +128,8 @@ jobs:
             git pull origin main
             mvn clean package -DskipTests -B
             sudo systemctl restart airquality-api
+            sleep 15
+            curl -f http://localhost:10004/api/health || echo "Backend starting..."
 
   # ============================================================
   # SMOKE TEST - Verify deployment health after CD stage

@@ -43,6 +43,14 @@ build/
 *.env
 application-local.yml
 
+### Terraform ###
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*.tfvars
+terraform/.terraform.lock.hcl
+terraform/tfplan
+
 ### OS ###
 .DS_Store
 Thumbs.db
