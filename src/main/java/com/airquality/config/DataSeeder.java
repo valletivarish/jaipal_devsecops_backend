@@ -129,14 +129,14 @@ public class DataSeeder implements ApplicationRunner {
         }
 
         Random random = new Random(42);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endDate = LocalDateTime.of(2026, 3, 25, 23, 59, 59);
 
         for (MonitoringZone zone : zones) {
             for (PollutantType pollutant : pollutants) {
                 for (int day = 14; day >= 0; day--) {
                     int[] hours = {6, 10, 14, 20};
                     for (int hour : hours) {
-                        LocalDateTime recordedAt = now.minusDays(day).withHour(hour).withMinute(0).withSecond(0);
+                        LocalDateTime recordedAt = endDate.minusDays(day).withHour(hour).withMinute(0).withSecond(0);
 
                         double baseValue = getBaseValue(pollutant.getName(), zone.getName());
                         double variation = baseValue * 0.3 * random.nextGaussian();
