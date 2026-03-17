@@ -22,8 +22,7 @@ public interface SensorReadingRepository extends JpaRepository<SensorReading, Lo
             "(CAST(:zoneId AS BIGINT) IS NULL OR sr.zone_id = :zoneId) AND " +
             "(CAST(:pollutantTypeId AS BIGINT) IS NULL OR sr.pollutant_type_id = :pollutantTypeId) AND " +
             "(CAST(:startDate AS TIMESTAMP) IS NULL OR sr.recorded_at >= :startDate) AND " +
-            "(CAST(:endDate AS TIMESTAMP) IS NULL OR sr.recorded_at <= :endDate) " +
-            "ORDER BY sr.id DESC",
+            "(CAST(:endDate AS TIMESTAMP) IS NULL OR sr.recorded_at <= :endDate)",
             nativeQuery = true)
     List<SensorReading> findByFilters(
             @Param("zoneId") Long zoneId,

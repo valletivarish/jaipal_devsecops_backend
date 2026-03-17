@@ -35,9 +35,11 @@ public class SensorReadingController {
             @RequestParam(name = "start_date", required = false) LocalDateTime startDate,
             @RequestParam(name = "end_date", required = false) LocalDateTime endDate,
             @RequestParam(defaultValue = "0") int skip,
-            @RequestParam(defaultValue = "20") int limit) {
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(name = "sort_by", defaultValue = "id") String sortBy,
+            @RequestParam(name = "sort_dir", defaultValue = "desc") String sortDir) {
         List<SensorReadingResponse> readings = sensorReadingService.getReadings(
-                zoneId, pollutantTypeId, startDate, endDate, skip, limit);
+                zoneId, pollutantTypeId, startDate, endDate, skip, limit, sortBy, sortDir);
         return ResponseEntity.ok(readings);
     }
 

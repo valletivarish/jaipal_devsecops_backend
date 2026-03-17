@@ -11,6 +11,7 @@ import com.airquality.repository.PollutantTypeRepository;
 import com.airquality.repository.SensorReadingRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,12 +62,17 @@ public class SensorReadingService {
         return convertToResponse(reading);
     }
 
+    private static final List<String> ALLOWED_SORT_FIELDS = List.of("id", "recorded_at", "value", "aqi", "created_at");
+
     @Transactional(readOnly = true)
     public List<SensorReadingResponse> getReadings(Long zoneId, Long pollutantTypeId,
                                                     LocalDateTime startDate, LocalDateTime endDate,
-                                                    int skip, int limit) {
+                                                    int skip, int limit,
+                                                    String sortBy, String sortDir) {
+        String sortField = ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "id";
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
         int page = limit > 0 ? skip / limit : 0;
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(direction, sortField));
         return sensorReadingRepository.findByFilters(zoneId, pollutantTypeId, startDate, endDate, pageable).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
