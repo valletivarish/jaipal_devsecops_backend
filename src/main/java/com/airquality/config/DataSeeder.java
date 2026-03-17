@@ -133,7 +133,7 @@ public class DataSeeder implements ApplicationRunner {
 
         for (MonitoringZone zone : zones) {
             for (PollutantType pollutant : pollutants) {
-                for (int day = 5; day >= 0; day--) {
+                for (int day = 14; day >= 0; day--) {
                     int[] hours = {6, 10, 14, 20};
                     for (int hour : hours) {
                         LocalDateTime recordedAt = now.minusDays(day).withHour(hour).withMinute(0).withSecond(0);
