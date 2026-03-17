@@ -54,12 +54,14 @@ public class SensorReadingService {
         return convertToResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public SensorReadingResponse getReadingById(Long id) {
         SensorReading reading = sensorReadingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SensorReading", id));
         return convertToResponse(reading);
     }
 
+    @Transactional(readOnly = true)
     public List<SensorReadingResponse> getReadings(Long zoneId, Long pollutantTypeId,
                                                     LocalDateTime startDate, LocalDateTime endDate,
                                                     int skip, int limit) {

@@ -18,12 +18,13 @@ public interface SensorReadingRepository extends JpaRepository<SensorReading, Lo
 
     List<SensorReading> findByZoneIdOrderByRecordedAtDesc(Long zoneId, Pageable pageable);
 
-    @Query("SELECT sr FROM SensorReading sr WHERE " +
-            "(:zoneId IS NULL OR sr.zone.id = :zoneId) AND " +
-            "(:pollutantTypeId IS NULL OR sr.pollutantType.id = :pollutantTypeId) AND " +
-            "(:startDate IS NULL OR sr.recordedAt >= :startDate) AND " +
-            "(:endDate IS NULL OR sr.recordedAt <= :endDate) " +
-            "ORDER BY sr.recordedAt DESC")
+    @Query(value = "SELECT sr.* FROM sensor_readings sr WHERE " +
+            "(CAST(:zoneId AS BIGINT) IS NULL OR sr.zone_id = :zoneId) AND " +
+            "(CAST(:pollutantTypeId AS BIGINT) IS NULL OR sr.pollutant_type_id = :pollutantTypeId) AND " +
+            "(CAST(:startDate AS TIMESTAMP) IS NULL OR sr.recorded_at >= :startDate) AND " +
+            "(CAST(:endDate AS TIMESTAMP) IS NULL OR sr.recorded_at <= :endDate) " +
+            "ORDER BY sr.recorded_at DESC",
+            nativeQuery = true)
     List<SensorReading> findByFilters(
             @Param("zoneId") Long zoneId,
             @Param("pollutantTypeId") Long pollutantTypeId,
