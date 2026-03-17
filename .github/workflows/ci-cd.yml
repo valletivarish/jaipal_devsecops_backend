@@ -6,7 +6,7 @@
 # CD stages run only on push to main branch to deploy to AWS EC2.
 #
 # Pipeline stages:
-# 1. Backend CI: Build, lint (Checkstyle), security scan (SpotBugs, OWASP), and run tests with coverage
+# 1. Backend CI: Build, lint (Checkstyle), security scan (SpotBugs), and run tests with coverage
 # 2. Backend CD: Deploy to AWS EC2 via SSH
 # 3. Smoke Test: Verify deployment health endpoint
 
@@ -62,12 +62,14 @@ jobs:
           cat spotbugs-report.txt
         continue-on-error: true
 
-      # Step 6: Run OWASP Dependency-Check for known vulnerabilities in dependencies
-      # Scans Maven dependencies against the National Vulnerability Database (NVD)
-      - name: Run OWASP Dependency-Check (dependency vulnerability scan)
+      # Step 6: Run Semgrep OWASP security scan
+      # Scans source code for OWASP Top 10 vulnerabilities using Semgrep static analysis
+      - name: Run Semgrep (OWASP security scan)
         run: |
-          mvn org.owasp:dependency-check-maven:check -B > owasp-report.txt 2>&1 || true
-          cat owasp-report.txt
+          pip install semgrep
+          semgrep --config "p/owasp-top-ten" --json --output semgrep-report.json src/ || true
+          semgrep --config "p/owasp-top-ten" src/ > semgrep-report.txt 2>&1 || true
+          cat semgrep-report.txt
         continue-on-error: true
 
       # Step 7: Generate JaCoCo code coverage report
@@ -87,10 +89,10 @@ jobs:
           path: |
             checkstyle-report.txt
             spotbugs-report.txt
-            owasp-report.txt
+            semgrep-report.txt
+            semgrep-report.json
             target/site/jacoco/
             target/surefire-reports/
-            target/dependency-check-report.html
 
   # ============================================================
   # BACKEND CD - Deploy to AWS EC2 (only on push to main)
