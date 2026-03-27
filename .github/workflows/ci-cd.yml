@@ -129,6 +129,10 @@ jobs:
             cd /home/ec2-user/app/backend
             git pull origin main
             mvn clean package -DskipTests -B
+
+            # Update systemd service to use port 8080
+            sudo sed -i 's/--server.port=[0-9]*/--server.port=8080/' /etc/systemd/system/airquality-api.service
+            sudo systemctl daemon-reload
             sudo systemctl restart airquality-api
 
             # Install and configure Nginx as reverse proxy
