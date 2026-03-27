@@ -1,10 +1,10 @@
 # EC2 Instance Configuration
 # Provisions a t2.micro EC2 instance to host the Spring Boot backend application.
-# Includes a security group allowing SSH (22) and API (10004) access.
+# Includes a security group allowing SSH (22) and API (8080) access.
 # User data script installs Java 17 and sets up the application as a systemd service.
 
 # Security group for the EC2 instance
-# Allows inbound SSH for management and port 10004 for the Spring Boot API
+# Allows inbound SSH for management and port 8080 for the Spring Boot API
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.project_name}-ec2-sg"
   description = "Security group for backend EC2 instance"
@@ -19,10 +19,10 @@ resource "aws_security_group" "ec2_sg" {
     description = "SSH access"
   }
 
-  # Allow API access (port 10004) for the Spring Boot backend
+  # Allow API access (port 8080) for the Spring Boot backend
   ingress {
-    from_port   = 10004
-    to_port     = 10004
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Spring Boot backend API"
@@ -83,8 +83,8 @@ resource "aws_instance" "backend" {
     # Update system packages
     dnf update -y
 
-    # Install Java 17 and development tools
-    dnf install -y java-17-amazon-corretto-devel maven git
+    # Install Java 17, development tools, and Nginx reverse proxy
+    dnf install -y java-17-amazon-corretto-devel maven git nginx
 
     # Create application directory
     mkdir -p /home/ec2-user/app/backend
@@ -100,7 +100,7 @@ resource "aws_instance" "backend" {
     Type=simple
     User=ec2-user
     WorkingDirectory=/home/ec2-user/app/backend
-    ExecStart=/usr/bin/java -jar target/air-quality-monitoring-1.0.0.jar --server.port=10004
+    ExecStart=/usr/bin/java -jar target/air-quality-monitoring-1.0.0.jar --server.port=8080
     Restart=always
     RestartSec=5
     Environment=SPRING_DATASOURCE_URL=jdbc:postgresql://${aws_db_instance.postgres.address}:5432/${var.db_name}
@@ -115,6 +115,25 @@ resource "aws_instance" "backend" {
 
     systemctl daemon-reload
     systemctl enable airquality-api
+
+    # Configure Nginx as reverse proxy for the Spring Boot API
+    cat > /etc/nginx/conf.d/airquality.conf <<NGXEOF
+    server {
+        listen 80;
+        server_name _;
+
+        location /api/ {
+            proxy_pass http://localhost:8080/api/;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+        }
+    }
+    NGXEOF
+
+    systemctl enable nginx
+    systemctl start nginx
   EOF
 
   tags = {

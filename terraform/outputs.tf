@@ -11,7 +11,7 @@ output "ec2_elastic_ip" {
 # Backend API URL - base URL for the Spring Boot application
 output "backend_url" {
   description = "URL for the Spring Boot backend API"
-  value       = "http://${aws_eip.backend.public_ip}:10004"
+  value       = "http://${aws_eip.backend.public_ip}:8080"
 }
 
 # Frontend website URL - S3 static website endpoint
